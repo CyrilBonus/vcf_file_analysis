@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Modified on Jan 31, 2025
-VCF Processing Script
-"""
 import pandas as pd
 import sys
 from Bio import SeqIO
@@ -17,6 +11,7 @@ genbank_file = sys.argv[2]
 def read_vcf(file):
     """
     Reads a VCF file and extracts relevant columns.
+    Returns a list of tuples containing DataFrame and its VCF type.
     """
     sections = []
     data = {}
@@ -28,7 +23,9 @@ def read_vcf(file):
                 continue
             if line.startswith('#'):
                 if headers:
-                    sections.append(pd.DataFrame(data))
+                    df = pd.DataFrame(data)
+                    vcf_type = detect_vcf_type(df)
+                    sections.append((df, vcf_type))
                 headers = line.strip().split('\t')
                 data = {col: [] for col in headers}
                 continue
@@ -36,9 +33,19 @@ def read_vcf(file):
             for col, val in zip(headers, values):
                 data[col].append(val)
         if headers:
-            sections.append(pd.DataFrame(data))
-
+            df = pd.DataFrame(data)
+            vcf_type = detect_vcf_type(df)
+            sections.append((df, vcf_type))
+    
     return sections
+
+def detect_vcf_type(df):
+    """
+    Detects if the VCF file is from Sniffles (SVTYPE) or SNP-based.
+    """
+    if df['INFO'].str.contains('SVTYPE=').any():
+        return "sniffles"
+    return "snp"
 
 def calculate_allele_frequencies(df):
     """
@@ -174,5 +181,13 @@ if __name__ == "__main__":
 
     sections = read_vcf(file)
     coding_regions = get_coding_regions(genbank_file)
-    results = [(f"Section {i+1}", analyze_vcf(df, coding_regions)) for i, df in enumerate(sections)]
+    results = []
+
+    for i, (df, vcf_type) in enumerate(sections):
+        section_name = f"Section {i+1} ({vcf_type})"
+        result = analyze_vcf(df, coding_regions)
+        results.append((section_name, result))
+
     write_results(results)
+
+ 
