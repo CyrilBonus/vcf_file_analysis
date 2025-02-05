@@ -79,7 +79,6 @@ def analyze_vcf(df, coding_regions):
     # Determine coding regions
     coding_variants = df[df.apply(lambda row: is_in_coding_region(int(row['POS']), coding_regions), axis=1)]
     coding_variants_count = len(coding_variants)
-    coding_indels = coding_variants[coding_variants['INFO'].str.contains('SVTYPE=INS|SVTYPE=DEL')]
 
     return {
         "Total Variants": total_variants,
@@ -92,7 +91,6 @@ def analyze_vcf(df, coding_regions):
         "Allele Frequency Distribution": allele_frequency_stats.to_dict(),
         "Variants per Chromosome": variants_per_chromosome.to_dict(),
         "Coding Variants": coding_variants_count,
-        "Coding INDELs": len(coding_indels),
         "VCF Chromosomes": df['#CHROM'].unique().tolist(),
         "Positions": df['POS'].astype(int).tolist(),
         "Temperature": df['TEMPERATURE'].iloc[0] if 'TEMPERATURE' in df.columns else 'UNKNOWN'
@@ -147,8 +145,7 @@ def write_results(results):
                 f.write(f"  {key}: {value}\n")
             f.write("\n")
 
-            f.write(f"Coding Variants: {result['Coding Variants']}\n")
-            f.write(f"Coding INDELs: {result['Coding INDELs']}\n")
+            f.write(f"Coding Variants: {result['Coding Variants']}/{result['Total Variants']}\n")
             f.write("\n")
 
             f.write("Chromosome IDs in VCF file:\n")
