@@ -79,7 +79,6 @@ def analyze_vcf(df, coding_regions):
     # Determine coding regions
     coding_variants = df[df.apply(lambda row: is_in_coding_region(int(row['POS']), coding_regions), axis=1)]
     coding_variants_count = len(coding_variants)
-
     return {
         "Total Variants": total_variants,
         "INDELs": len(indels),
@@ -162,6 +161,12 @@ def generate_variant_position_graph(section, positions, temperature):
     """
     plt.figure(figsize=(10, 6))
     plt.hist(positions, bins=50, edgecolor='black')
+    # Generate histogram data
+    counts, bins, patches = plt.hist(positions, bins=50, edgecolor='black', color='blue')
+    # Annotate max values on top of each bar
+    for count, bin_edge in zip(counts, bins[:-1]):  
+        if count > 0:  # Only label non-zero bars
+            plt.text(bin_edge, count, f'{int(count)}', ha='center', va='bottom', fontsize=9, rotation=45)
     plt.title(f'Variant Positions in Chromosome for {section} - Temperature: {temperature}')
     plt.xlabel('Position')
     plt.ylabel('Frequency')
@@ -186,5 +191,3 @@ if __name__ == "__main__":
         results.append((section_name, result))
 
     write_results(results)
-
- 
