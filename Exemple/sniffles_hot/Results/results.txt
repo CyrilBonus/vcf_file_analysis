@@ -1,0 +1,190 @@
+Section 1 (sniffles) VCF File Analysis Results
+=========================
+
+Total Variants: 90
+INDELs: 90
+High-Quality Variants (QUAL >= 30): 90
+Variants that Passed Filters: 18
+Variants that Failed Filters: 72
+Average Quality Score: 59.944444
+
+Quality Score Distribution:
+  count: 90.0
+  mean: 59.94444444444444
+  std: 0.23034469096157228
+  min: 59.0
+  25%: 60.0
+  50%: 60.0
+  75%: 60.0
+  max: 60.0
+
+Allele Frequency Distribution:
+  count: 90.0
+  mean: 0.39284444444444444
+  std: 0.4281666931273619
+  min: 0.003
+  25%: 0.0245
+  50%: 0.114
+  75%: 0.9319999999999999
+  max: 1.0
+
+Variants per Chromosome:
+  DQ657948.1: 90
+
+Coding Variants: 54/90
+
+Chromosome IDs in VCF file:
+  DQ657948.1
+
+Section 2 (sniffles) VCF File Analysis Results
+=========================
+
+Total Variants: 88
+INDELs: 88
+High-Quality Variants (QUAL >= 30): 88
+Variants that Passed Filters: 31
+Variants that Failed Filters: 57
+Average Quality Score: 59.965909
+
+Quality Score Distribution:
+  count: 88.0
+  mean: 59.96590909090909
+  std: 0.23726718226184246
+  min: 58.0
+  25%: 60.0
+  50%: 60.0
+  75%: 60.0
+  max: 60.0
+
+Allele Frequency Distribution:
+  count: 88.0
+  mean: 0.40588636363636366
+  std: 0.4119621797119993
+  min: 0.003
+  25%: 0.028749999999999998
+  50%: 0.16899999999999998
+  75%: 0.86875
+  max: 1.0
+
+Variants per Chromosome:
+  DQ657948.1: 88
+
+Coding Variants: 49/88
+
+Chromosome IDs in VCF file:
+  DQ657948.1
+
+Section 3 (sniffles) VCF File Analysis Results
+=========================
+
+Total Variants: 69
+INDELs: 69
+High-Quality Variants (QUAL >= 30): 69
+Variants that Passed Filters: 21
+Variants that Failed Filters: 48
+Average Quality Score: 59.985507
+
+Quality Score Distribution:
+  count: 69.0
+  mean: 59.98550724637681
+  std: 0.12038585308576914
+  min: 59.0
+  25%: 60.0
+  50%: 60.0
+  75%: 60.0
+  max: 60.0
+
+Allele Frequency Distribution:
+  count: 69.0
+  mean: 0.38853623188405795
+  std: 0.4219385785977882
+  min: 0.002
+  25%: 0.014
+  50%: 0.118
+  75%: 0.873
+  max: 1.0
+
+Variants per Chromosome:
+  DQ657948.1: 69
+
+Coding Variants: 42/69
+
+Chromosome IDs in VCF file:
+  DQ657948.1
+
+Section 4 (sniffles) VCF File Analysis Results
+=========================
+
+Total Variants: 62
+INDELs: 62
+High-Quality Variants (QUAL >= 30): 62
+Variants that Passed Filters: 17
+Variants that Failed Filters: 45
+Average Quality Score: 59.967742
+
+Quality Score Distribution:
+  count: 62.0
+  mean: 59.96774193548387
+  std: 0.17812704394997528
+  min: 59.0
+  25%: 60.0
+  50%: 60.0
+  75%: 60.0
+  max: 60.0
+
+Allele Frequency Distribution:
+  count: 62.0
+  mean: 0.3533064516129032
+  std: 0.41294724740337246
+  min: 0.002
+  25%: 0.01175
+  50%: 0.10350000000000001
+  75%: 0.8402499999999999
+  max: 1.0
+
+Variants per Chromosome:
+  DQ657948.1: 62
+
+Coding Variants: 36/62
+
+Chromosome IDs in VCF file:
+  DQ657948.1
+
+Section 5 (sniffles) VCF File Analysis Results
+=========================
+
+Total Variants: 84
+INDELs: 84
+High-Quality Variants (QUAL >= 30): 84
+Variants that Passed Filters: 24
+Variants that Failed Filters: 60
+Average Quality Score: 59.976190
+
+Quality Score Distribution:
+  count: 84.0
+  mean: 59.976190476190474
+  std: 0.15337099490085782
+  min: 59.0
+  25%: 60.0
+  50%: 60.0
+  75%: 60.0
+  max: 60.0
+
+Allele Frequency Distribution:
+  count: 84.0
+  mean: 0.4403690476190476
+  std: 0.4158873161726611
+  min: 0.01
+  25%: 0.05375
+  50%: 0.221
+  75%: 0.94775
+  max: 1.0
+
+Variants per Chromosome:
+  DQ657948.1: 84
+
+Coding Variants: 51/84
+
+Chromosome IDs in VCF file:
+  DQ657948.1
+
