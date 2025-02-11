@@ -45,16 +45,16 @@ Run the `vcf_cleanup.sh` script to remove all `.txt`, `.png`, and the `combined.
 
 ### 1. `read_vcf(file)`
 **Description**:  
-This function reads a VCF (Variant Call Format) file, processes its content, and extracts relevant data columns for further analysis.
+This function reads a VCF file, processes its content  and extracts what's considered relevant data columns for more analyses.
 
 **Parameters**:  
 - `file (str)`: The path to the VCF file.
 
 **Returns**:  
-- `list`: A list of tuples containing the filename, VCF DataFrame, and VCF type ('sniffles' or 'snp').
+- `list`: A list of tuples including the filename, the VCF DataFrame, and VCF type (meaning 'sniffles' or 'snp').
 
 **Explanation**:  
-This function opens and reads a VCF file line by line. It processes metadata lines, column headers, and data lines. For each section (defined by the metadata), it stores the relevant data in a pandas DataFrame, detects the VCF type, and appends the section to a list. Finally, it returns a list of all sections in the file.
+This function opens and reads each line of a VCF file. It takes care of metadata lines, the column headers, and the data lines. For each section, it stores what's relevant in a pandas DataFrame, noticing the VCF type, and appends the section to a list. Finally, it returns a list of all sections in the file.
 
 ---
 
