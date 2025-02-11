@@ -131,6 +131,83 @@ def is_in_coding_region(pos, coding_regions):
     """
     return any(start <= pos <= end for start, end in coding_regions)
 
+import re
+
+def generate_comparative_variant_graph_by_pnumber(results):
+    """
+    Generates a bar graph comparing the number of variants across all VCF files, grouped by 'PNUMBER'.
+    """
+    # Group files by 'PNUMBER' (e.g., 'P90', 'P15')
+    grouped_results = {}
+    for filename, section, result in results:
+        pnumber_match = re.match(r'^(P\d{2})-', filename)
+        if pnumber_match:
+            pnumber = pnumber_match.group(1)
+            if pnumber not in grouped_results:
+                grouped_results[pnumber] = []
+            grouped_results[pnumber].append((filename, result))
+    
+    # Generate a graph for each group
+    for pnumber, group in grouped_results.items():
+        filenames = [filename for filename, _ in group]
+        total_variants = [result["Total Variants"] for _, result in group]
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(filenames, total_variants, color='purple', edgecolor='black')
+        plt.xlabel("VCF Files")
+        plt.ylabel("Total Variants")
+        plt.title(f"Comparison of Variant Counts for {pnumber}")
+        plt.xticks(rotation=45, ha="right")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+        # Annotate bars with values
+        for i, count in enumerate(total_variants):
+            plt.text(i, count + 2, str(count), ha="center", fontsize=10)
+
+        plt.tight_layout()
+        plt.savefig(f"variant_comparison_{pnumber}.png")
+        plt.close()
+
+def calculate_mean_variants_by_pnumber(results):
+    """
+    Calculates the mean number of variants for each 'PNUMBER' group.
+    """
+    # Group results by 'PNUMBER'
+    grouped_results = {}
+    for filename, section, result in results:
+        pnumber_match = re.match(r'^(P\d{2})-', filename)
+        if pnumber_match:
+            pnumber = pnumber_match.group(1)
+            if pnumber not in grouped_results:
+                grouped_results[pnumber] = []
+            grouped_results[pnumber].append(result["Total Variants"])
+    
+    # Calculate mean for each PNUMBER group
+    mean_variants = {pnumber: sum(variants) / len(variants) for pnumber, variants in grouped_results.items()}
+    return mean_variants
+
+def generate_comparative_mean_variant_graph(mean_variants):
+    """
+    Generates a bar graph comparing the mean number of variants across different 'PNUMBER' groups.
+    """
+    pnumbers = list(mean_variants.keys())
+    means = list(mean_variants.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(pnumbers, means, color='green', edgecolor='black')
+    plt.xlabel("PNUMBER")
+    plt.ylabel("Mean Number of Variants")
+    plt.title("Comparison of Mean Variant Counts Across PNUMBER Groups")
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+    # Annotate bars with values
+    for i, mean in enumerate(means):
+        plt.text(i, mean + 2, f'{mean:.2f}', ha="center", fontsize=10)
+
+    plt.tight_layout()
+    plt.savefig("mean_variant_comparison.png")
+    plt.close()
+
 def write_results(results):
     """
     Writes the analysis results to a file.
@@ -171,6 +248,13 @@ def write_results(results):
 
             # Generate and save the bar graph for variant positions
             generate_variant_position_graph(filename, section, result['Positions'], result['Temperature'])
+            
+        # Calculate the mean number of variants per PNUMBER and generate the comparative graph
+        mean_variants = calculate_mean_variants_by_pnumber(results)
+        generate_comparative_mean_variant_graph(mean_variants)
+        generate_comparative_variant_graph_by_pnumber(results)
+
+
 
 def generate_variant_position_graph(filename, section, positions, temperature):
     """
