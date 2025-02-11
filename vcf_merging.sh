@@ -25,8 +25,12 @@ for file in $(ls -v *.vcf);
 do
     # Determine the temperature for the current file
     temperature=$(determine_temperature "$file")
+    filename_no_ext=$(echo "$file" | cut -d'.' -f1)
     echo "Processing file: $file, Temperature: $temperature"  # Debugging line
-
+    
+    # Add new header line before existing headers
+    echo "##FILENAME=$filename_no_ext" >> "$output"
+    
     # Process the file line by line
     while IFS= read -r line
     do
