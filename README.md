@@ -1,6 +1,6 @@
 # vcf_file_analysis
 
-This project analyzes VCF (Variant Call Format) files and generates various statistical outputs, including allele frequencies, variant counts, and quality scores. The project uses Python and several bioinformatics libraries to process VCF files and reference genomes.
+This project analyzes VCF files and generates several statistical outputs, that will be allele frequencies, variant counts, and the quality scores. This project uses Python3 and some bioinformatics libraries to process those VCF files and a reference genome.
 
 ## Scripts
 
