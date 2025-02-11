@@ -1,5 +1,7 @@
 import pandas as pd
 import sys
+import re
+
 from Bio import SeqIO
 import matplotlib.pyplot as plt
 
@@ -178,7 +180,6 @@ def is_in_coding_region(pos, coding_regions):
     """
     return any(start <= pos <= end for start, end in coding_regions)
 
-import re
 
 def generate_comparative_variant_graph_by_pnumber(results):
     """
@@ -220,52 +221,78 @@ def generate_comparative_variant_graph_by_pnumber(results):
 
 def calculate_mean_variants_by_pnumber(results):
     """
-    Calculates the mean number of variants for each 'PNUMBER' group.
+    Calculates the mean number of variants for each 'PNUMBER' group, considering 'HOT' and 'COLD' files.
     
     Args:
         results (list): A list of tuples containing the filename, VCF section, and analysis results.
         
     Returns:
-        dict: A dictionary with the mean number of variants for each PNUMBER.
+        dict: A dictionary with the mean number of variants for each PNUMBER, separated by temperature.
     """
-    # Group results by 'PNUMBER'
+    # Group results by 'PNUMBER' and temperature ('HOT' or 'COLD')
     grouped_results = {}
     for filename, section, result in results:
         pnumber_match = re.match(r'^(P\d{2})-', filename)
         if pnumber_match:
             pnumber = pnumber_match.group(1)
+            temperature = result["Temperature"]
+            
             if pnumber not in grouped_results:
-                grouped_results[pnumber] = []
-            grouped_results[pnumber].append(result["Total Variants"])
-    
-    # Calculate mean for each PNUMBER group
-    mean_variants = {pnumber: sum(variants) / len(variants) for pnumber, variants in grouped_results.items()}
+                grouped_results[pnumber] = {"HOT": [], "COLD": []}
+            
+            grouped_results[pnumber][temperature].append(result["Total Variants"])
+
+    # Calculate mean for each PNUMBER and temperature group
+    mean_variants = {}
+    for pnumber, temperatures in grouped_results.items():
+        hot_variants = temperatures["HOT"]
+        cold_variants = temperatures["COLD"]
+        
+        mean_hot = sum(hot_variants) / len(hot_variants) if hot_variants else 0
+        mean_cold = sum(cold_variants) / len(cold_variants) if cold_variants else 0
+        
+        mean_variants[pnumber] = {"HOT": mean_hot, "COLD": mean_cold}
+
     return mean_variants
 
 def generate_comparative_mean_variant_graph(mean_variants):
     """
-    Generates a bar graph comparing the mean number of variants across different 'PNUMBER' groups.
+    Generates a bar graph comparing the mean number of variants across different 'PNUMBER' groups,
+    distinguishing between 'HOT' and 'COLD' files with different colors.
     
     Args:
         mean_variants (dict): A dictionary with mean variant counts for each PNUMBER group.
     """
     pnumbers = list(mean_variants.keys())
-    means = list(mean_variants.values())
+    hot_means = [mean_variants[pnumber]["HOT"] for pnumber in pnumbers]
+    cold_means = [mean_variants[pnumber]["COLD"] for pnumber in pnumbers]
 
-    plt.figure(figsize=(10, 6))
-    plt.bar(pnumbers, means, color='green', edgecolor='black')
+    plt.figure(figsize=(12, 6))
+
+    # Plot 'HOT' and 'COLD' variants side by side with different colors
+    bar_width = 0.35  # Adjust bar width for side-by-side bars
+    index = range(len(pnumbers))
+
+    plt.bar(index, hot_means, bar_width, color='red', edgecolor='black', label='HOT')
+    plt.bar([i + bar_width for i in index], cold_means, bar_width, color='blue', edgecolor='black', label='COLD')
+
     plt.xlabel("PNUMBER")
     plt.ylabel("Mean Number of Variants")
-    plt.title("Comparison of Mean Variant Counts Across PNUMBER Groups")
+    plt.title("Comparison of Mean Variant Counts Across PNUMBER Groups (HOT vs COLD)")
+    plt.xticks([i + bar_width / 2 for i in index], pnumbers)
+    plt.legend()
+
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
     # Annotate bars with values
-    for i, mean in enumerate(means):
-        plt.text(i, mean + 2, f'{mean:.2f}', ha="center", fontsize=10)
+    for i, (hot, cold) in enumerate(zip(hot_means, cold_means)):
+        plt.text(i, hot + 2, f'{hot:.2f}', ha="center", fontsize=10)
+        plt.text(i + bar_width, cold + 2, f'{cold:.2f}', ha="center", fontsize=10)
 
     plt.tight_layout()
-    plt.savefig("mean_variant_comparison.png")
+    plt.savefig("mean_variant_comparison_hot_cold.png")
     plt.close()
+
 
 def write_results(results):
     """
