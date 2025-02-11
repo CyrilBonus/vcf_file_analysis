@@ -11,33 +11,50 @@ genbank_file = sys.argv[2]
 def read_vcf(file):
     """
     Reads a VCF file and extracts relevant columns.
-    Returns a list of tuples containing DataFrame and its VCF type.
+    Returns a list of tuples containing the filename, DataFrame, and its VCF type.
     """
     sections = []
     data = {}
     headers = []
+    filename = None  # Track filename
 
     with open(file, 'r') as f:
         for line in f:
             if line.startswith('##'):
+                if line.startswith('##FILENAME='):
+                    if filename and headers:  # Save the previous section before switching filenames
+                        df = pd.DataFrame(data)
+                        vcf_type = detect_vcf_type(df)
+                        sections.append((filename, df, vcf_type))
+
+                    filename = line.strip().split('=')[1]  # Extract new filename
+                    data = {}  # Reset data
+                    headers = []  # Reset headers
                 continue
+
             if line.startswith('#'):
-                if headers:
+                if headers and data:  # Ensure previous section is stored before starting a new one
                     df = pd.DataFrame(data)
                     vcf_type = detect_vcf_type(df)
-                    sections.append((df, vcf_type))
+                    sections.append((filename, df, vcf_type))
+
                 headers = line.strip().split('\t')
                 data = {col: [] for col in headers}
                 continue
+
             values = line.strip().split('\t')
             for col, val in zip(headers, values):
                 data[col].append(val)
-        if headers:
+
+        # Ensure the last section is not skipped
+        if headers and data:
             df = pd.DataFrame(data)
             vcf_type = detect_vcf_type(df)
-            sections.append((df, vcf_type))
-    
+            sections.append((filename, df, vcf_type))
+
     return sections
+
+
 
 def detect_vcf_type(df):
     """
@@ -119,8 +136,8 @@ def write_results(results):
     Writes the analysis results to a file.
     """
     with open("results.txt", "w") as f:
-        for section, result in results:
-            f.write(f"{section} VCF File Analysis Results\n")
+        for filename, section, result in results:
+            f.write(f"{filename} - {section} VCF File Analysis Results\n")
             f.write("=========================\n\n")
             f.write(f"Total Variants: {result['Total Variants']}\n")
             f.write(f"INDELs: {result['INDELs']}\n")
@@ -153,9 +170,9 @@ def write_results(results):
             f.write("\n")
 
             # Generate and save the bar graph for variant positions
-            generate_variant_position_graph(section, result['Positions'], result['Temperature'])
+            generate_variant_position_graph(filename, section, result['Positions'], result['Temperature'])
 
-def generate_variant_position_graph(section, positions, temperature):
+def generate_variant_position_graph(filename, section, positions, temperature):
     """
     Generates a bar graph showing the positions of the variants in the chromosome.
     """
@@ -167,12 +184,12 @@ def generate_variant_position_graph(section, positions, temperature):
     for count, bin_edge in zip(counts, bins[:-1]):  
         if count > 0:  # Only label non-zero bars
             plt.text(bin_edge, count, f'{int(count)}', ha='center', va='bottom', fontsize=9, rotation=45)
-    plt.title(f'Variant Positions in Chromosome for {section} - Temperature: {temperature}')
+    plt.title(f'Variant Positions in Chromosome for {filename} - {section} - Temperature: {temperature}')
     plt.xlabel('Position')
     plt.ylabel('Frequency')
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(f'{section}_variant_positions.png')
+    plt.savefig(f'{filename}_{section}_variant_positions.png')
     plt.close()
 
 # Example usage
@@ -185,9 +202,9 @@ if __name__ == "__main__":
     coding_regions = get_coding_regions(genbank_file)
     results = []
 
-    for i, (df, vcf_type) in enumerate(sections):
-        section_name = f"Section {i+1} ({vcf_type})"
+    for filename, df, vcf_type in sections:
+        section_name = f"Section {vcf_type}"
         result = analyze_vcf(df, coding_regions)
-        results.append((section_name, result))
+        results.append((filename, section_name, result))
 
     write_results(results)
