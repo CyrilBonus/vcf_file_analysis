@@ -5,7 +5,7 @@ Ce script permet dans un premier temps de comparer les variants présents entre 
 Ensuite, grace a une lecture du fichier fasta des ORF de la référence il permet de trouver les variations touchant des ORF annotées.
 Le script a été conçu et réalisé en collaboration avec Hermine Kioussou et utilise les fonctions de comparaison de Elio Torquet.
 Ce script n'est pas encore automatisé, il est nécessaire de remplacer les générations à chaque utilisation en veillant à respecter l'ordre chronologique des génération. 
-Cette version permet la comparaison entre P65 et P90, pour une comparaison des passages 15 et 50, veiller à bien remplacer P65 par P15 et P90 par P50 (partout dans le script)!
+Cette version permet la comparaison entre P50 et P65, pour une comparaison des passages 50 et 65, veiller à bien remplacer P50 par P50 et P65 par P65 (partout dans le script)!
  """
 
 import os
@@ -55,7 +55,7 @@ for fichier in fichiers:
     
     #détermination de la condition et du passage
     condition = "hot" if "hot" in fichier else "cold" 
-    passage = "P65" if "P65" in fichier else "P90"
+    passage = "P50" if "P50" in fichier else "P65"
     
     if passage not in mutations:
         mutations[passage] = {}
@@ -111,37 +111,37 @@ def variant_equal(v1, v2, sim_thresold=1):
     
     return shared >= sim_thresold
 
-print("3 - Comparaison des mutations entre P65 et P90...")
+print("3 - Comparaison des mutations entre P50 et P65...")
 
 mutations_apparues = [] #liste pour stocker les mutations suivant le status 
 mutations_disparues = []
 mutations_conservees = []
 
 for condition in conditions: #conditions défini en ligne 34
-    if "P65" not in mutations or "P90" not in mutations:
-        print("ERREUR : Les mutations pour P65 ou P90 sont manquantes !") 
-        #Si P65 ou P90 n'existe pas dans le dictionnaire mutations, 
+    if "P50" not in mutations or "P65" not in mutations:
+        print("ERREUR : Les mutations pour P50 ou P65 sont manquantes !") 
+        #Si P50 ou P65 n'existe pas dans le dictionnaire mutations, 
         #alors on ne peut pas faire la comparaison et on arrête le script (exit()).
         exit()
     
+    mutations_P50 = mutations["P50"].get(condition, [])
     mutations_P65 = mutations["P65"].get(condition, [])
-    mutations_P90 = mutations["P90"].get(condition, [])
-    
-    for variant_P90 in mutations_P90:
-        found = any(variant_equal(variant_P90, v) for v in mutations_P65) 
-        #on cherche si le variant existe déjà dans P65 grâce a la fonction variant_equal()
-        if found:
-            mutations_conservees.append({"condition": condition, **variant_P90}) 
-            #si oui on l'ajoute à la liste mutation_conservees
-        else:
-            mutations_apparues.append({"condition": condition, **variant_P90}) 
-            #si non la mutation est apparue à P90
     
     for variant_P65 in mutations_P65:
-        found = any(variant_equal(variant_P65, v) for v in mutations_P90) 
-        #on cherche si la mutation de P65 existe encore à P90
+        found = any(variant_equal(variant_P65, v) for v in mutations_P50) 
+        #on cherche si le variant existe déjà dans P50 grâce a la fonction variant_equal()
+        if found:
+            mutations_conservees.append({"condition": condition, **variant_P65}) 
+            #si oui on l'ajoute à la liste mutation_conservees
+        else:
+            mutations_apparues.append({"condition": condition, **variant_P65}) 
+            #si non la mutation est apparue à P65
+    
+    for variant_P50 in mutations_P50:
+        found = any(variant_equal(variant_P50, v) for v in mutations_P65) 
+        #on cherche si la mutation de P50 existe encore à P65
         if not found:
-            mutations_disparues.append({"condition": condition, **variant_P65}) 
+            mutations_disparues.append({"condition": condition, **variant_P50}) 
             #si non on l'ajoute à la liste mutations_disparues 
 print("Comparaison terminée !")
 
@@ -218,6 +218,13 @@ df_disparues_cold = pd.DataFrame([m for m in mutations_disparues if m["condition
 df_disparues_hot = pd.DataFrame([m for m in mutations_disparues if m["condition"] == "hot"])
 df_conservees_cold = pd.DataFrame([m for m in mutations_conservees if m["condition"] == "cold"])
 df_conservees_hot = pd.DataFrame([m for m in mutations_conservees if m["condition"] == "hot"])
+
+df_apparues_cold["Passage"] = [['P65']] * len(df_apparues_cold)
+df_apparues_hot["Passage"] = [['P65']] * len(df_apparues_hot)
+df_disparues_cold["Passage"] = [['P50']] * len(df_disparues_cold)
+df_disparues_hot["Passage"] = [['P50']] * len(df_disparues_hot)
+df_conservees_cold["Passage"] = [['P50', 'P65']] * len(df_conservees_cold)
+df_conservees_hot["Passage"] = [['P50', 'P65']] * len(df_conservees_hot)
 
 df_apparues_cold.to_csv(os.path.join(comparaison_dir, "mutations_apparues_cold_ORF.csv"), index=False, sep=",", quoting=1)
 df_apparues_hot.to_csv(os.path.join(comparaison_dir, "mutations_apparues_hot_ORF.csv"), index=False, sep=",", quoting=1)
